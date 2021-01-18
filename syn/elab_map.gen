@@ -1,0 +1,108 @@
+set_db design_process_node 22
+set_db auto_ungroup none
+set_db hdl_error_on_latch true
+# set_db boundary_opto false
+set_db optimize_merge_flops false
+set_db optimize_merge_latches false
+set_db lp_insert_clock_gating false
+set_db lp_insert_discrete_clock_gating_logic false
+
+set rt_constraints func
+set rt_duty_cycle  { 0.400 0.500 0.600 }
+set rt_model_type nldm
+set rt_if_margin 1.000
+
+read_mmmc ../scripts/mmmc_config.tcl
+source    ../scripts/lef_setup.tcl
+
+###################################################
+# Read HDL
+if [catch {open "../filelist.f" r} inFileID] {
+	puts stderr "Cannot open ../filelist.f for reading"
+	exit 1
+} else {
+	foreach line [split [read $inFileID] \n] {
+		if { [regexp {\.sv} $line] } {
+			read_hdl -sv -define SYN $line
+		} elseif { [regexp {\.vhd} $line] } {
+			read_hdl -vhdl -define SYN $line
+		} elseif { [regexp {\.v} $line] } {
+			read_hdl -v2001 -define SYN $line
+		}
+	}
+}
+###################################################
+
+elaborate $design
+report_hierarchy
+report_dp -all
+
+# read_def          lay/cs_results/${design}_fp.def
+# read_power_intent lay/inputs/${design}.upf -1801
+source            ../scripts/dont_use_gf_22fdx.tcl
+source            ../scripts/set_derate_gf_22fdx.tcl
+
+init_design
+# commit_power_intent
+set_db leakage_power_effort low
+set_db design:$design .lp_default_toggle_percentage 0.2
+set_db design:$design .lp_power_optimization_weight 0.999
+set_db design:$design .max_leakage_power 0.0
+set_db design:$design .max_dynamic_power 0.0
+
+#set_db iopt_sequential_duplication true; #enable register replication on high fanout
+set_db design:$design .retime true
+#set_db [current_design] .dft_dont_scan true;  #prevent use of scan flops
+#set_db / .use_scan_seqs_for_non_dft false;  #prevent use of scan flops
+set_db syn_generic_effort high; syn_generic
+set_db syn_map_effort high; syn_map
+
+write_do_lec -golden rtl -revised fv_map \
+  -no_exit -logfile fv/rtl2map.tcl.log > fv/rtl2map.tcl
+
+#retime -min_delay
+
+set_db syn_opt_effort high; syn_opt
+update_names -verilog -force -regexp -allowed {a-zA-Z0-9_}
+
+# set_dont_use is removed; set_timing_derate is removed from func_0.500
+# SDC, but still visible in func_0.400 and func_0.600 SDCs ...
+set_db write_sdc_exclude {set_dont_use set_timing_derate group_path}
+write_db -verbose -all_root_attributes -to_file $design.db
+write_snapshot -innovus -tag syn_opt -dir [file normalize dbs/syn_opt]
+
+write_do_lec -golden fv_map -revised dbs/syn_opt/syn_opt_$design.v.gz \
+  -no_exit -logfile fv/map2opt.tcl.log > fv/map2opt.tcl
+
+# Fix missing set_dont_touch in *.sdc, when using write_snapshot ...
+alias wsdc "write_sdc -constraint_mode"
+wsdc cm_func_0.400 $design > dbs/syn_opt/syn_opt_${design}.cm_func_0.400.sdc
+wsdc cm_func_0.500 $design > dbs/syn_opt/syn_opt_${design}.cm_func_0.500.sdc
+wsdc cm_func_0.600 $design > dbs/syn_opt/syn_opt_${design}.cm_func_0.600.sdc
+
+
+foreach cg [get_db cost_groups .name] {
+  set cmd "report_timing -path_type full_clock -cost_group $cg"
+  echo $cmd; eval $cmd
+}
+
+#########################################################################
+#reporting
+#
+check_design > ${design}_check_design.rpt
+check_timing_intent > ${design}_check_timing_intent.rpt
+
+echo "Number of registers in design: [sizeof [all_registers]]" > ${design}_regs.rpt
+#report_timing –check_type setup > ${design}_timing_report.rpt
+report_clocks > ${design}_clocks.rpt
+report_area > ${design}_area.rpt
+report_gates > ${design}_gates.rpt
+report_clock_gating > ${design}_clock_gating.rpt
+report_power > ${design}_pwr.rpt
+report_qor > ${design}.qor
+check_dft_rules > ${design}_dft_rules.rpt
+report_scan_registers > ${design}_scan_regs.rpt
+
+foreach type { inf war err } { eval "report_messages -all -incl -$type"; }
+#stop
+report_runtime; exit
