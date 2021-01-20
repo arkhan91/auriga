@@ -1,15 +1,16 @@
 
 //LISENCE
-  import alu::*;
+  import core_pkg::*;
   module alu #(
-    parameter alu::alu_feature_t FEATURES     = core_pkg::RV32D,
-    parameter alu::implementation_t IMPLMNT   = alu_pkg::DEFUALT,
-    parameter int unsigned DATA_WIDTH         = FEATURES.WIDTH,
-    parameter int unsigned NUM_OPERANDS       = 2
+    parameter int unsigned DATA_WIDTH         = 32,
+    parameter int unsigned SHAMT_WIDTH        = 5
   )(
   
-    input  logic [NUM_OPERANDS-1:0] [DATA_WIDTH-1:0]  operands_i,
-    input  core::alu_operation_t                      alu_op_i,
+    input  logic [DATA_WIDTH-1:0]                     operands_a_i,
+    input  logic [DATA_WIDTH-1:0]                     operands_b_i,
+
+    input  logic [4:0]                                alu_op_i,
+    input  logic [SHAMT_WIDTH-1:0]                    shamt_i,
     output logic [DATA_WIDTH-1:0]                     result_o,
     output logic [DATA_WIDTH:0]                       adder_o,
     output logic                                      comp_o
@@ -26,9 +27,6 @@
     logic [DATA_WIDTH-1:0] in2_inv;
 
     logic [DATA_WIDTH-1:0] alu_logic;
-
-    localparam int unsigned SHAMT_WIDTH = FEATURES.SHAMT_WIDTH;
-    logic [SHAMT_WIDTH-1:0] shamt;
     logic [DATA_WIDTH-1:0] shift_result;
     logic [DATA_WIDTH-1:0] comparator_result;
     logic [DATA_WIDTH:0]   arthmatic_result;
@@ -87,17 +85,16 @@
 
     always_comb begin
       unique case (alu_op_i)
-        ADD :  result   = operands_i[0] + operands_i[1];
-        SUB :  result   = operands_i[0] - operands_i[1];
-        AND:  result    = operands_i[0] & operands_i[1];
-        OR :  result    = operands_i[0] | operands_i[1];
-        XOR:  result    = operands_i[0] ^ operands_i[1];  
-        SLL  :  result  = operands_i[1] << shamt;
-        SRR  :  result  = $reverse(operands_i[1]) << shamt; 
-        SLT  :  result  = $reverse(operands_i[1]) << shamt; 
-        SLTU :  result  = $reverse(operands_i[1]) << shamt; 
-        SRL  :  result  = $reverse(operands_i[1]) << shamt; 
-        SRA  :  result  = $reverse(operands_i[1]) << shamt; 
+        ADD :  result   = operands_a_i + operands_b_i;
+        SUB :  result   = operands_a_i - operands_b_i;
+        AND:  result    = operands_a_i & operands_b_i;
+        OR :  result    = operands_a_i | operands_b_i;
+        XOR:  result    = operands_a_i ^ operands_b_i;  
+        SLL  :  result  = operands_b_i << shamt_i;
+        SLT  :  result  = operands_b_i << shamt_i; 
+        SLTU :  result  = operands_b_i << shamt_i; 
+        SRL  :  result  = operands_b_i << shamt_i; 
+        SRA  :  result  = operands_b_i << shamt_i; 
       endcase
     end
 
