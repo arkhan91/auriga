@@ -11,6 +11,8 @@
 
     input  logic [4:0]                                alu_op_i,
     input  logic [SHAMT_WIDTH-1:0]                    shamt_i,
+    input  logic                                      invert_i,
+
     output logic [DATA_WIDTH-1:0]                     result_o,
     output logic [DATA_WIDTH:0]                       adder_o,
     output logic                                      comp_o
@@ -85,16 +87,14 @@
 
     always_comb begin
       unique case (alu_op_i)
-        ADD :  result   = operands_a_i + operands_b_i;
-        SUB :  result   = operands_a_i - operands_b_i;
+        ADD :  result   = (invert_i) ? operands_a_i - operands_b_i:operands_a_i + operands_b_i;
         AND:  result    = operands_a_i & operands_b_i;
         OR :  result    = operands_a_i | operands_b_i;
         XOR:  result    = operands_a_i ^ operands_b_i;  
         SLL  :  result  = operands_b_i << shamt_i;
         SLT  :  result  = operands_b_i << shamt_i; 
         SLTU :  result  = operands_b_i << shamt_i; 
-        SRL  :  result  = operands_b_i << shamt_i; 
-        SRA  :  result  = operands_b_i << shamt_i; 
+        SRL  :  result  = (invert_i) ? operands_b_i << shamt_i:operands_b_i << shamt_i; 
       endcase
     end
 

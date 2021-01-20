@@ -25,7 +25,7 @@ module core_decoder (
     logic [11:0] imm5;
 
     assign opcode     = instruction_i[6:0];
-    assign func3      = {instruction_i[29],instruction_i[11:7]};
+    assign func3      = instruction_i[14:12];
 
 
 
@@ -164,13 +164,6 @@ module core_decoder (
 
         end 
         
-        SUB: begin 
-          core_ctrl.alu_op         = SUB;
-          core_ctrl.op_mux_sel_0   = IMEM;
-          core_ctrl.op_mux_sel_1   = REG_OPERAND;
-          
-        end 
-        
         SLL: begin 
           core_ctrl.alu_op         = SLL;
           core_ctrl.op_mux_sel_0   = IMEM;
@@ -183,11 +176,7 @@ module core_decoder (
           core_ctrl.op_mux_sel_1   = REG_OPERAND;
         end 
         
-        SRA: begin 
-          core_ctrl.alu_op         = SRA;
-          core_ctrl.op_mux_sel_0   = IMEM;
-          core_ctrl.op_mux_sel_1   = REG_OPERAND;
-        end
+
             
         SLT: begin 
           core_ctrl.alu_op         = SLT;
@@ -225,12 +214,6 @@ module core_decoder (
             core_ctrl.op_mux_sel_1   = REG_OPERAND;
           end 
           
-          SUB: begin 
-            core_ctrl.alu_op         = SUB;
-            core_ctrl.op_mux_sel_0   = REG_OPERAND;
-            core_ctrl.op_mux_sel_1   = REG_OPERAND;
-          end 
-          
           SLL: begin 
             core_ctrl.alu_op         = SLL;
             core_ctrl.op_mux_sel_0   = IMEM;
@@ -243,11 +226,7 @@ module core_decoder (
             core_ctrl.op_mux_sel_1   = REG_OPERAND;
           end 
           
-          SRA: begin 
-            core_ctrl.alu_op         = SRA;
-            core_ctrl.op_mux_sel_0   = REG_OPERAND;
-            core_ctrl.op_mux_sel_1   = REG_OPERAND;
-          end
+
               
           SLT: begin 
             core_ctrl.alu_op         = SLT;
@@ -281,10 +260,10 @@ module core_decoder (
     assign core_ctrl.addr.rs2_addr  = instruction_i[24:20];
     assign core_ctrl.addr.rd_addr   = instruction_i[11:7];
     // SIGN EXTENDED
-    assign imemediate_val[11:5]  =  instruction_i[31:25];
-    assign imemediate_val[4:0]   =  (instruction_i[6:0]==OPCODE_STORE) ? instruction_i[31:25] : instruction_i[11:7];
-    assign core_ctrl.sign_extended=  $signed(imemediate_val);
-
+    assign imemediate_val[11:5]     =  instruction_i[31:25];
+    assign imemediate_val[4:0]      =  (instruction_i[6:0]==OPCODE_STORE) ? instruction_i[31:25] : instruction_i[11:7];
+    assign core_ctrl.sign_extended  =  $signed(imemediate_val);
+    assign core_ctrl.invert         =  instruction_i[30];
     // CSR
 
     
