@@ -84,17 +84,19 @@
 
    
     */
+    
 
+    
     always_comb begin
       unique case (alu_op_i)
         ADD :  result   = (invert_i) ? operands_a_i - operands_b_i:operands_a_i + operands_b_i;
         AND:  result    = operands_a_i & operands_b_i;
         OR :  result    = operands_a_i | operands_b_i;
         XOR:  result    = operands_a_i ^ operands_b_i;  
-        SLL  :  result  = operands_b_i << shamt_i;
-        SLT  :  result  = operands_b_i << shamt_i; 
-        SLTU :  result  = operands_b_i << shamt_i; 
-        SRL  :  result  = (invert_i) ? operands_b_i << shamt_i:operands_b_i << shamt_i; 
+        SLL  :  result  = operands_b_i << operands_a_i;//WIP
+        SLT  :  result  = operands_b_i << operands_a_i;//WIP 
+        SLTU :  result  = operands_b_i << $unsigned(operands_a_i); 
+        SRL  :  result  = (invert_i) ? operands_b_i >> operands_a_i:operands_b_i >> operands_a_i; 
       endcase
     end
 

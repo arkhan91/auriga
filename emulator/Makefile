@@ -66,6 +66,12 @@ CFILES	=		$(SRCDIR)/$(TB_NAME).cpp
 
 # All (System-)Verilog source files
 VFILES	=		$(RTLDIR)/core/core_regfile.sv \
+						$(RTLDIR)/core/core_pkg.sv \
+						$(RTLDIR)/core/alu.sv \
+						$(RTLDIR)/core/core_decoder.sv \
+						$(RTLDIR)/core/core_execution.sv \
+						$(RTLDIR)/core/core_fetch.sv \
+						$(RTLDIR)/core/core_wip.sv \
 						harness.sv
 
 all: build
