@@ -55,18 +55,18 @@ void init_states (uint32_t* T, Vauriga_harness *auriga, TRACETYPE* tfp)
 {
 		auriga->clk_i   = 0;
     
-    auriga->rst_n_i = 1;
+    auriga->arst_ni = 1;
     tick (T, auriga, tfp, 10);  
 } // init_states()
 
 void gen_reset (uint32_t* T, Vauriga_harness *auriga, TRACETYPE* tfp, int w)
 {
    tick (T, auriga, tfp, 1);
-   auriga->rst_n_i = 0;
+   auriga->arst_ni = 0;
 
 
    tick (T, auriga, tfp, w);
-   auriga->rst_n_i = 1; 
+   auriga->arst_ni = 1; 
 } // gen_reset()
 
 int main (int argc, char **argv)

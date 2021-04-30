@@ -5,7 +5,8 @@ module core_decoder (
     input logic                  clk_i,
     input logic                  arst_ni,
     input logic [31:0]           instruction_i,
-    
+    input logic                  instruction_valid_i,
+
     input logic [31:0]           id_pc_i,
     input logic                  stall_i,
     output logic [31:0]          sign_extended_o,

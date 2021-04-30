@@ -2,7 +2,7 @@
   module core_regfile 
   (
     input logic clk_i,
-    input logic rst_n_i,
+    input logic arst_ni,
     
     input logic [4:0] rs0_addr_i,
     output logic [31:0] rs0_data_i,

@@ -2,7 +2,7 @@
 // LISCENCE
 module core_fetch(
     input logic                                clk_i,
-    input logic                                rst_n_i,
+    input logic                                arst_ni,
     
     output logic                               inst_req_o,
     input  logic                               inst_grnt_i,
@@ -28,8 +28,8 @@ logic [31:0] program_counter_q;
 logic [31:0] program_counter_d;
 
 assign program_counter_d = (branch_i && !stall_i)? branch_pc_i : (!stall_i)? program_counter_q + 'd4 : program_counter_q;
-always_ff @(posedge clk_i or negedge rst_n_i) begin
-    if (!rst_n_i) begin
+always_ff @(posedge clk_i or negedge arst_ni) begin
+    if (!arst_ni) begin
         program_counter_q <= '0;
     end else begin
     
@@ -39,7 +39,7 @@ end
 
 assign inst_addr_o = program_counter_q;
 assign instruction_o = inst_data_i;
-assign inst_req_o = !rst_n_i;
+assign inst_req_o = !arst_ni;
 assign instruction_valid_o = inst_valid_i;
 
 /*

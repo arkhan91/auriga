@@ -3,7 +3,7 @@ VERILATOR = verilator
 GTKWAVE = gtkwave
 VERILATOR_ROOT ?= $(shell bash -c 'verilator -V|grep VERILATOR_ROOT | head -1 | sed -e "s/^.*=\s*//"')
 
-RTLDIR 	= ../src/rtl
+RTLDIR 	= ../src
 SRCDIR 	= src
 INCDIR 	= include
 
@@ -29,7 +29,7 @@ VDEFS		=	+define+SIMULATION
 TRACE_TYPE = FST
 
 ifeq ($(TRACE_TYPE),FST)
-	TRACE_OPTS = --trace-fst --trace-threads 2
+	TRACE_OPTS = --trace-fst 
 	CFLAGS += -DTRACE_FST
 	TRACEFILE = trace.fst
 else
@@ -43,10 +43,10 @@ TRACE_OPTS += --no-trace-params --trace-structs
 # TRACE_OPTS += --trace-max-array 32768
 
 # single threaded
-#VOPTS		= --trace -Wno-lint -Wno-UNPACKED -Wno-UNOPTFLAT -Wno-TIMESCALEMOD -Wno-SHORTREAL --clk harness.clk_i 
+#VOPTS		= --trace -Wno-lint -Wno-UNPACKED -Wno-UNOPTFLAT  -Wno-SHORTREAL --clk harness.clk_i 
 
 # multithreaded
-VOPTS		= --threads $(THREADS) $(TRACE_OPTS) -Wno-lint -Wno-UNPACKED -Wno-UNOPTFLAT -Wno-UNOPTTHREADS -Wno-TIMESCALEMOD -Wno-SHORTREAL --clk harness.clk_i 
+VOPTS		= --threads $(THREADS) $(TRACE_OPTS) -Wno-lint -Wno-UNPACKED -Wno-UNOPTFLAT -Wno-UNOPTTHREADS  -Wno-SHORTREAL --clk harness.clk_i 
 
 VINCS		= 
 
@@ -65,32 +65,32 @@ WAVESDIR	=	waves
 CFILES	=		$(SRCDIR)/$(TB_NAME).cpp
 
 # All (System-)Verilog source files
-VFILES	=		$(RTLDIR)/core/core_regfile.sv \
-						$(RTLDIR)/core/core_pkg.sv \
-						$(RTLDIR)/core/alu.sv \
-						$(RTLDIR)/core/core_decoder.sv \
-						$(RTLDIR)/core/core_execution.sv \
-						$(RTLDIR)/core/core_fetch.sv \
-						$(RTLDIR)/core/core_wip.sv \
-						harness.sv
+VFILES	=	$(RTLDIR)/core/rtl/core_regfile.sv \
+			$(RTLDIR)/core/rtl/core_pkg.sv \
+			$(RTLDIR)/core/rtl/alu.sv \
+			$(RTLDIR)/core/rtl/core_decoder.sv \
+			$(RTLDIR)/core/rtl/core_execution.sv \
+			$(RTLDIR)/core/rtl/core_fetch.sv \
+			$(RTLDIR)/core/rtl/core.sv \
+			harness.sv
 
 all: build
 
 compile_rtl:  $(VFILES) $(CFILES)
 	@echo "\nCompiling..."
 	@echo $(CFLAGS)
-	$(VERILATOR) -j $(OPTASS) $(VOPTS) $(VINCS) -CFLAGS '$(CFLAGS)' -LDFLAGS $(LDFLAGS) $(VDEFS) --top-module $(TOPLEVEL) $(VFILES) --cc --exe $(CFILES) -o V$(TB_NAME)
+	$(VERILATOR)  $(OPTASS) $(VOPTS) $(VINCS) -CFLAGS '$(CFLAGS)' -LDFLAGS $(LDFLAGS) $(VDEFS) --top-module $(TOPLEVEL) $(VFILES) --cc --exe $(CFILES) -o V$(TB_NAME)
 
 # compile verilog into C++
 compile: $(VFILES) $(CFILES)
 	@echo "\nCompiling..."
 	@echo $(CFLAGS)
-	$(VERILATOR) -j $(OPTASS) $(VOPTS) $(VINCS) -CFLAGS '$(CFLAGS)' -LDFLAGS $(LDFLAGS) $(VDEFS) --top-module $(TOPLEVEL) $(VFILES) --cc --exe $(CFILES) -o V$(TB_NAME)
+	$(VERILATOR)  $(OPTASS) $(VOPTS) $(VINCS) -CFLAGS '$(CFLAGS)' -LDFLAGS $(LDFLAGS) $(VDEFS) --top-module $(TOPLEVEL) $(VFILES) --cc --exe $(CFILES) -o V$(TB_NAME)
 	
 # compile C++ model into executable
 build: compile
 	@echo "\nBuilding..."
-	make -j --no-print-directory -C obj_dir -f V$(TOPLEVEL).mk
+	make  --no-print-directory -C obj_dir -f V$(TOPLEVEL).mk
 	mv obj_dir/V$(TB_NAME) .
 			
 # execute simulation

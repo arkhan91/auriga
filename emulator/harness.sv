@@ -6,7 +6,7 @@ import "DPI-C" context function byte read_section (input longint address,inout b
 module auriga_harness 
   (
     input logic clk_i,     
-    input logic rst_n_i
+    input logic arst_ni
     
     
   );
@@ -50,7 +50,7 @@ module auriga_harness
   `ifndef VERILATOR
 
   logic clk_i,     
-        rst_n_i,;
+        arst_ni,;
   
   logic clk;
   
@@ -67,9 +67,9 @@ module auriga_harness
   
   // Selective resets for all clock domains
   task assert_rst(int unsigned n = 1);
-    rst_n_i <= 0;
+    arst_ni <= 0;
     repeat(n) @(posedge clk_i);
-    rst_n_i <= 1;
+    arst_ni <= 1;
   endtask
     
 
@@ -84,7 +84,7 @@ module auriga_harness
 core #(
 ) u_core(
     .clk_i(clk_i),
-    .rst_n_i(rst_n_i),
+    .arst_ni(arst_ni),
     
     .inst_req_o(inst_req_o),
     .inst_grnt_i(inst_grnt_i),

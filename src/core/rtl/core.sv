@@ -4,7 +4,7 @@
   module core #(
   )(
     input  logic                               clk_i,
-    input  logic                               rst_n_i,
+    input  logic                               arst_ni,
     
     output logic                               inst_req_o,
     input  logic                               inst_grnt_i,
@@ -34,7 +34,7 @@
 
     core_regfile u_core_regfile (
       .clk_i(clk_i),
-      .rst_n_i(rst_n_i),
+      .arst_ni(arst_ni),
       .rs0_addr_i(core_ctrl.addr.rs1_addr),
       .rs0_data_i(rs0_data),
       .rs1_addr_i(core_ctrl.addr.rs2_addr),
@@ -46,12 +46,12 @@
       
       assign alu_operand_a = (core_ctrl.op_mux_sel_0==REG_OPERAND) ? rs0_data : core_ctrl.sign_extended;
       assign alu_operand_b =rs1_data ;
-      assign rd_en = core_ctrl.result_write;
+      assign rd_en = 1'b1;
 
 
     core_decoder u_core_decoder(
       .clk_i(clk_i),
-      .rst_n_i(rst_n_i),
+      .arst_ni(arst_ni),
       .instruction_i(instruction),
       .instruction_valid_i(1'b1),
       .id_pc_i(),
@@ -73,7 +73,7 @@
 
     core_fetch u_core_fetch(
       .clk_i(clk_i),
-      .rst_n_i(rst_n_i),
+      .arst_ni(arst_ni),
       .inst_req_o(inst_req_o),
       .inst_grnt_i(inst_grnt_i),
       .inst_addr_o(inst_addr_o),
