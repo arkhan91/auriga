@@ -45,7 +45,7 @@
       );
       
       assign alu_operand_a = (core_ctrl.op_mux_sel_0==REG_OPERAND) ? rs0_data : core_ctrl.sign_extended;
-      assign alu_operand_b =rs1_data ;
+      assign alu_operand_b = rs1_data ;
       assign rd_en = 1'b1;
 
 
@@ -56,7 +56,6 @@
       .instruction_valid_i(1'b1),
       .id_pc_i(),
       .stall_i(),
-      .sign_extended_o(),
       .core_ctrl(core_ctrl)
     );
       
@@ -64,7 +63,7 @@
       .operands_a_i(alu_operand_a),
       .operands_b_i(alu_operand_b),
       .alu_op_i(core_ctrl.alu_op),
-      .shamt_i('d2),
+      .invert_i(core_ctrl.invert),
       .result_o(alu_result),
       .adder_o(adder),
       .comp_o(comp_o)

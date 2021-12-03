@@ -8,7 +8,7 @@ SRCDIR 	= src
 INCDIR 	= include
 
 
-THREADS = 12
+THREADS = 1
 
 # -O3 gives fastest simulator but takes _veeery_ long for compiling
 OPTLVL  = 
@@ -74,7 +74,10 @@ VFILES	=	$(RTLDIR)/core/rtl/core_regfile.sv \
 			$(RTLDIR)/core/rtl/core.sv \
 			harness.sv
 
-all: build
+all: build run
+
+help: 
+	@echo "make compile"
 
 compile_rtl:  $(VFILES) $(CFILES)
 	@echo "\nCompiling..."
@@ -89,13 +92,13 @@ compile: $(VFILES) $(CFILES)
 	
 # compile C++ model into executable
 build: compile
-	@echo "\nBuilding..."
+	@echo "\nBuilding..............."
 	make  --no-print-directory -C obj_dir -f V$(TOPLEVEL).mk
 	mv obj_dir/V$(TB_NAME) .
 			
 # execute simulation
 run: V$(TB_NAME)
-	@echo "Executing model..."
+	@echo "Executing model.................."
 	./V$(TB_NAME)
 	@echo "Done."
 	

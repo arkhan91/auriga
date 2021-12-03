@@ -11,46 +11,11 @@ module auriga_harness
     
   );
     
-  //    // Load an ELF binary.
-  //task load_binary;
-  //  input string binary;
-  //  longint section_addr, section_len;
-  //  byte buffer[];
-  //  $display("Loading ELF binary '%s'", binary);
-  //  void'(read_elf(binary));
-  //  while (get_section(section_addr, section_len)) begin
-  //    automatic int num_words = (section_len+AXI_BYTES-1)/AXI_BYTES;
-  //    $display("Loading section %x", section_addr);
-  //    buffer = new [num_words*AXI_BYTES];
-  //    void'(read_section(section_addr, buffer));
-  //    for (int i = 0; i < num_words; i++) begin
-  //      automatic logic [AXI_BYTES-1:0][7:0] word = '0;
-  //      for (int j = 0; j < AXI_BYTES; j++)
-  //        word[j] = buffer[i*AXI_BYTES+j];
-  //      memory[section_addr/AXI_BYTES+i] = word;
-  //    end
-  //  end
-  //  $display("ELF binary loaded");
-  //endtask
-//
-  //// Dump the memory to disk.
-  //task dump_memory;
-  //  automatic string filename = "memory_dump.txt";
-  //  automatic int fd = $fopen(filename, "w");
-  //  $display("[MEMORY] Dumping memory to: %s", filename);
-  //  foreach (memory[word]) begin
-  //    automatic bit [31:0] addr = word * AXI_BYTES;
-  //    for (int i = 0; i < AXI_BYTES/4; i++)
-  //      $fwrite(fd, "%08x  %08x\n", addr + i*4, memory[word][32*i+:32]);
-  //  end
-  //  $fclose(fd);
-  //endtask
-  //
-  //
-  `ifndef VERILATOR
+
+ `ifndef VERILATOR
 
   logic clk_i,     
-        arst_ni,;
+        arst_ni;
   
   logic clk;
   
@@ -67,9 +32,9 @@ module auriga_harness
   
   // Selective resets for all clock domains
   task assert_rst(int unsigned n = 1);
-    arst_ni <= 0;
+    arst_ni = 0;
     repeat(n) @(posedge clk_i);
-    arst_ni <= 1;
+    arst_ni = 1;
   endtask
     
 

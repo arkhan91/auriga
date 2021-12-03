@@ -17,7 +17,8 @@ module core_decoder (
     core_pkg::Rtype_inst_t  rtype_inst;
     core_pkg::Itype_inst_t  itype_inst;
     core_pkg::opcode_e      opcode;
-    
+    core_pkg::inst_type_e   inst_t;
+
     core_pkg::alu_op_t      func3;
 
     logic [2:0] funct3;
@@ -25,144 +26,23 @@ module core_decoder (
     logic [11:0] imm12;
     logic [11:0] imm5;
 
-    assign opcode     = instruction_i[6:0];
-    assign func3      = instruction_i[14:12];
+    assign func3      = alu_op_t'(instruction_i[14:12]);
 
-
-
-  // exceptions
     
-
     always_comb begin
 
-        core_ctrl.alu_op         = ADD;
+        core_ctrl.alu_op         = ADD_SUB;
         core_ctrl.op_mux_sel_0   = REG_OPERAND;
         core_ctrl.op_mux_sel_1   = REG_OPERAND;
         unique case (opcode)
-   /*
-          LUI: begin 
-                  core_ctrl.alu_op         = SUB;
-                  core_ctrl.op_mux_sel_0   = IMEM;
-                  core_ctrl.op_mux_sel_1   = REG_OPERAND;
-              end  
-            
-          AUIPC: begin 
-                  core_ctrl.alu_op         = SUB;
-                  core_ctrl.op_mux_sel_0   = IMEM;
-                  core_ctrl.op_mux_sel_1   = REG_OPERAND;
-                end  
-
-          JAL: begin 
-                  core_ctrl.alu_op                    = SUB;
-                  core_ctrl.op_mux_sel_0   = IMEM;
-                  core_ctrl.op_mux_sel_1   = REG_OPERAND;
-              end  
-
-          JALR: begin 
-                  core_ctrl.alu_op                    = SUB;
-                  core_ctrl.op_mux_sel_0   = IMEM;
-                  core_ctrl.op_mux_sel_1   = REG_OPERAND;
-                end  
-                
-          ////////////////// BRANCH 
-          BEQ: begin 
-                  core_ctrl.alu_op                    = SUB;
-                  core_ctrl.op_mux_sel_0   = IMEM;
-                  core_ctrl.op_mux_sel_1   = REG_OPERAND;
-              end  
-            
-          BNE: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end  
-          
-          BLT: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end  
-          
-          BGE: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end  
-
-          BLTU: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end  
-
-          BGEU: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end  
-            
-          
-
-////////////////// LOAD STORE
-          LB: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end  
-
-
-          LH: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end  
-
-          LW: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end  
-
-          LBU: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end  
-                  
-          LHU: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end 
-            
-          SB: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end
-                      
-                      
-          SH: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end  
-
-          SW: begin 
-              core_ctrl.alu_op                    = SUB;
-              core_ctrl.op_mux_sel_0   = IMEM;
-              core_ctrl.op_mux_sel_1   = REG_OPERAND;
-            end  
-          */
-////////////////// IMEDIATE ARTHMATICS 
-      OPCODE_OP_IMM : begin
+   
+       ALU_OP_IMM : begin ////////////////// IMEDIATE ARTHMATICS 
        case(func3) 
-        ADD: begin 
-          core_ctrl.alu_op         = ADD;
+        ADD_SUB: begin 
+          core_ctrl.alu_op         = ADD_SUB;
           core_ctrl.op_mux_sel_0   = IMEM;
           core_ctrl.op_mux_sel_1   = REG_OPERAND;
           core_ctrl.addr.rs1_addr  = REG_OPERAND;
-
         end 
         
         SLL: begin 
@@ -171,14 +51,12 @@ module core_decoder (
           core_ctrl.op_mux_sel_1   = REG_OPERAND;
         end 
         
-        SRL: begin 
-          core_ctrl.alu_op         = SRL;
+        SRL_SRA: begin 
+          core_ctrl.alu_op         = SRL_SRA;
           core_ctrl.op_mux_sel_0   = IMEM;
           core_ctrl.op_mux_sel_1   = REG_OPERAND;
         end 
         
-
-            
         SLT: begin 
           core_ctrl.alu_op         = SLT;
           core_ctrl.op_mux_sel_0   = IMEM;
@@ -206,11 +84,10 @@ module core_decoder (
         
       end
         
-////////////////// REG-REG ARTHMATICS 
-      OPCODE_OP : begin
+      ALU_OP : begin   ////////////////// REG-REG ARTHMATICS 
         case(func3) 
-          ADD: begin 
-            core_ctrl.alu_op         = ADD;
+          ADD_SUB: begin 
+            core_ctrl.alu_op         = ADD_SUB;
             core_ctrl.op_mux_sel_0   = REG_OPERAND;
             core_ctrl.op_mux_sel_1   = REG_OPERAND;
           end 
@@ -221,8 +98,8 @@ module core_decoder (
             core_ctrl.op_mux_sel_1   = REG_OPERAND;
           end 
           
-          SRL: begin 
-            core_ctrl.alu_op         = SRL;
+          SRL_SRA: begin 
+            core_ctrl.alu_op         = SRL_SRA;
             core_ctrl.op_mux_sel_0   = IMEM;
             core_ctrl.op_mux_sel_1   = REG_OPERAND;
           end 
@@ -262,11 +139,11 @@ module core_decoder (
     assign core_ctrl.addr.rd_addr   = instruction_i[11:7];
     // SIGN EXTENDED
     assign imemediate_val[11:5]     =  instruction_i[31:25];
-    assign imemediate_val[4:0]      =  (instruction_i[6:0]==OPCODE_STORE) ? instruction_i[31:25] : instruction_i[11:7];
+    assign imemediate_val[4:0]      =  (instruction_i[6:0]==STORE) ? instruction_i[31:25] : instruction_i[11:7];
     assign core_ctrl.sign_extended  =  $signed(imemediate_val);
-    assign core_ctrl.invert         =  instruction_i[30];
+    // INVERSE & SRA Check
+    assign core_ctrl.invert         =  (instruction_i[6:0]==ALU_OP_IMM && func3!=SRL_SRA)? 1'b0 :instruction_i[30];
     // CSR
 
     
 endmodule : core_decoder
-
