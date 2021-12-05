@@ -29,7 +29,7 @@ VDEFS		=	+define+SIMULATION
 TRACE_TYPE = FST
 
 ifeq ($(TRACE_TYPE),FST)
-	TRACE_OPTS = --trace-fst 
+	TRACE_OPTS = --trace-fst --trace-structs
 	CFLAGS += -DTRACE_FST
 	TRACEFILE = trace.fst
 else
@@ -65,12 +65,13 @@ WAVESDIR	=	waves
 CFILES	=		$(SRCDIR)/$(TB_NAME).cpp
 
 # All (System-)Verilog source files
-VFILES	=	$(RTLDIR)/core/rtl/core_regfile.sv \
-			$(RTLDIR)/core/rtl/core_pkg.sv \
+VFILES	=	$(RTLDIR)/core/rtl/core_pkg.sv \
+			$(RTLDIR)/core/rtl/core_regfile.sv \
 			$(RTLDIR)/core/rtl/alu.sv \
 			$(RTLDIR)/core/rtl/core_decoder.sv \
 			$(RTLDIR)/core/rtl/core_execution.sv \
 			$(RTLDIR)/core/rtl/core_fetch.sv \
+			$(RTLDIR)/core/rtl/core_writeback.sv \
 			$(RTLDIR)/core/rtl/core.sv \
 			harness.sv
 

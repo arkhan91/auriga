@@ -32,9 +32,13 @@
     logic [DATA_WIDTH-1:0] comparator_result;
     logic [DATA_WIDTH:0]   arthmatic_result;
     
+    logic [DATA_WIDTH:0]  adder_d;
+
+    assign adder_d   = operands_a_i + operands_b_i;
+
     always_comb begin
       unique case (alu_op_i)
-        ADD_SUB  :  result   = (invert_i) ? operands_a_i - operands_b_i :operands_a_i + operands_b_i;
+        ADD_SUB  :  result   = (invert_i) ? operands_a_i - operands_b_i :adder_d;
         AND  :  result   = operands_a_i & operands_b_i;
         OR   :  result   = operands_a_i | operands_b_i;
         XOR  :  result   = operands_a_i ^ operands_b_i;  
@@ -48,4 +52,5 @@
 
     assign result_o = result;
     assign comp_o   = 1'b1;
+    assign adder_o  = adder_d;
   endmodule :alu   

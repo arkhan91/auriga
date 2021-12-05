@@ -55,7 +55,7 @@ core #(
     .inst_grnt_i(inst_grnt_i),
     .inst_addr_o(inst_addr_o),
     .inst_data_i(32'b111111001110_00001_000_01111_0010011),
-    .inst_valid_i(inst_valid_i),   
+    .inst_valid_i(1'b1),   
     
     .data_mem_req_o(data_mem_req),
     .data_mem_grnt_i(data_mem_grnt),

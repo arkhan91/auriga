@@ -3,23 +3,47 @@
 package core_pkg;
     //  Group: Typedefs
     
+typedef enum logic [4:0] { 
+    x0 = 'd0,
+    x1 = 'd1,
+    x2 = 'd2,
+    x3 = 'd3,
+    x4 = 'd4,
+    x5 = 'd5,
+    x6 = 'd6,
+    x7 = 'd7,
+    x8 = 'd8,
+    x9 = 'd9,
+    x10 = 'd10,
+    x11 = 'd11,
+    x12 = 'd12,
+    x13 = 'd13,
+    x14 = 'd14,
+    x15 = 'd15,
+    x16 = 'd16,
+    x17 = 'd17,
+    x18 = 'd18,
+    x19 = 'd19,  
+    x20 = 'd20,
+    x21 = 'd21,
+    x22 = 'd22,
+    x23 = 'd23,
+    x24 = 'd24,
+    x25 = 'd25,
+    x26 = 'd26,
+    x27 = 'd27,
+    x28 = 'd28,
+    x29 = 'd29,
+    x30 = 'd30,
+    x31 = 'd31
+} register_file_t;
 /////////////
 // Opcodes //
 /////////////
 
     typedef enum logic [6:0] {
-       U_TYPE           = 7'b??1_0111,
-       J_TYPE           = 7'b110_?111,
-       R_TYPE           = 7'b110_0111,
-       S_TYPE           = 7'b010_0011,
-       SB_TYPE          = 7'b001_0011,
-       B_TYPE           = 7'b110_0011
-    } inst_type_e;
-
-
-    typedef enum logic [6:0] {
-        STORE     = 7'b110_0111,
-        LOAD             = 7'b010_0011,
+        STORE         = 7'b110_0111,
+        LOAD          = 7'b010_0011,
         ALU_OP        = 7'b011_0011,
         ALU_OP_IMM    = 7'b001_0011
     } opcode_e;
@@ -102,22 +126,21 @@ package core_pkg;
     
     //  load controller
     typedef enum logic [2:0] {
-        ld_LB  = 3'b000,
-        ld_LH  = 3'b001,
-        ld_LW  = 3'b010,
-        ld_LD  = 3'b011,
-        ld_LBU = 3'b100,
-        ld_LHU = 3'b101,
-        ld_LWU = 3'b110
-    } ld_op_t;
+        LB  = 3'b000,
+        LH  = 3'b001,
+        LW  = 3'b010,
+        LD  = 3'b011,
+        LBU = 3'b100,
+        LHU = 3'b101,
+        LWU = 3'b110
+    } load_op_t;
     
     //  store controller
     typedef enum logic [2:0] {
         SB  = 3'b000,
         SH  = 3'b001,
-        LW  = 3'b010,
-        LD  = 3'b011
-    } sd_op_t;
+        SW  = 3'b010
+    } store_op_t;
     
     //  branch controller
     typedef enum logic [2:0] {
@@ -139,22 +162,31 @@ package core_pkg;
     } operand_sel_t;
 
     typedef struct packed {
-        logic [4:0] rs1_addr;
-        logic [4:0] rs2_addr;
-        logic [4:0] rd_addr;
+        register_file_t rs1_addr;
+        register_file_t rs2_addr;
+        register_file_t rd_addr;
     } reg_addr_t;
 
     typedef struct packed {
         operand_sel_t  op_mux_sel_0;
         operand_sel_t  op_mux_sel_1;
         alu_op_t       alu_op;
-        ld_op_t        load_op;
-        sd_op_t        store_op;   
+        logic          alu_sel;
+        load_op_t      load_op;
+        store_op_t     store_op;
+        logic          load_sel;   
+        logic          store_sel;    
+        branch_op_t    branch_op;
+        logic          branch_sel;
         logic          invert;
         reg_addr_t     addr;
         logic [31:0]   sign_extended;
-        inst_type_e    inst_t;
     } core_ctrl_t;
+
+   
+
+    
+    
 
 
 endpackage: core_pkg

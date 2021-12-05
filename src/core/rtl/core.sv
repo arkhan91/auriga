@@ -21,7 +21,6 @@
     output logic                               data_mem_ren_o,
     output logic                               data_mem_wen_o
     );
-    core_pkg::core_ctrl_t core_ctrl;
     
      logic  [31:0]  alu_operand_a;
      logic  [31:0]  alu_operand_b;
@@ -31,64 +30,86 @@
      logic [31:0]                  rs0_data;
      logic [31:0]                  rs1_data;
      logic                         rd_en;
+     logic                         stall;
+     logic  [31:0] pc_dec;
+     logic  [31:0] pc_fetch;
 
-    core_regfile u_core_regfile (
-      .clk_i(clk_i),
-      .arst_ni(arst_ni),
-      .rs0_addr_i(core_ctrl.addr.rs1_addr),
-      .rs0_data_i(rs0_data),
-      .rs1_addr_i(core_ctrl.addr.rs2_addr),
-      .rs1_data_i(rs1_data),
-      .rd_we_i(rd_en),
-      .rd_addr_i(core_ctrl.addr.rd_addr),
-      .rd_data_i(alu_result)
-      );
+     logic [4:0]                   rd_addr;
+     logic [31:0]                  rd_mem_data;
+     logic [4:0]                   rd_exe_addr,rd_mem_addr,rd_dec_addr;
+
+     core_pkg::core_ctrl_t core_ctrl;
       
-      assign alu_operand_a = (core_ctrl.op_mux_sel_0==REG_OPERAND) ? rs0_data : core_ctrl.sign_extended;
-      assign alu_operand_b = rs1_data ;
-      assign rd_en = 1'b1;
+      
 
 
+      core_fetch u_core_fetch(
+        .clk_i(clk_i),
+        .arst_ni(arst_ni),
+        .inst_req_o(inst_req_o),
+        .inst_grnt_i(inst_grnt_i),
+        .inst_addr_o(inst_addr_o),
+        .inst_data_i(inst_data_i),   
+        .inst_valid_i(inst_valid_i),
+        .flush_i(),
+        .stall_i(stall),
+        .exception_i(1'b0),
+        .branch_i(1'b0),
+        .pc_next_i(pc_next),
+        .branch_pc_i('d0),
+        .instruction_o(instruction),  
+        .instruction_valid_o(instruction_valid),  
+        .program_cnt_o(pc_fetch)
+    
+    );  
+
+
+ 
     core_decoder u_core_decoder(
       .clk_i(clk_i),
       .arst_ni(arst_ni),
       .instruction_i(instruction),
+      .program_cnt_i(pc_fetch),
+      .alu_operand_a_o(alu_operand_a),
+      .alu_operand_b_o(alu_operand_a),
+      .program_cnt_o(pc_dec),
       .instruction_valid_i(1'b1),
-      .id_pc_i(),
-      .stall_i(),
-      .core_ctrl(core_ctrl)
+      .stall_i(stall),
+      .rd_addr_i(rd_dec_addr),
+      .rd_data_i(rd_mem_data),
+      .core_ctrl_o(core_ctrl)
     );
       
     core_execution #( ) u_core_execution (
+      .clk_i(clk_i),
+      .arst_ni(arst_ni),
       .operands_a_i(alu_operand_a),
       .operands_b_i(alu_operand_b),
       .alu_op_i(core_ctrl.alu_op),
       .invert_i(core_ctrl.invert),
+      .rd_addr_i(core_ctrl.addr.rd_addr),
+      .rd_addr_o(rd_mem_addr),
+      .program_cnt_i(pc_dec),
+      .stall_i(stall),
       .result_o(alu_result),
       .adder_o(adder),
       .comp_o(comp_o)
     );
 
-
-    core_fetch u_core_fetch(
+          
+    core_writeback #( ) u_core_writeback (
       .clk_i(clk_i),
       .arst_ni(arst_ni),
-      .inst_req_o(inst_req_o),
-      .inst_grnt_i(inst_grnt_i),
-      .inst_addr_o(inst_addr_o),
-      .inst_data_i(inst_data_i),   
-      .inst_valid_i(inst_valid_i),
-      .flush_i(),
-      .stall_i(1'b0),
-      .exception_i(1'b0),
-      .branch_i(1'b0),
-      .pc_next_i(pc_next),
-      .branch_pc_i('d0),
-      .instruction_o(instruction),  
-      .instruction_valid_o(instruction_valid),  
-      .pc_o(pc)
-  
-  );
+      .alu_result_i(alu_result),
+      .rd_addr_i(rd_mem_addr),
+      .rd_addr_o(rd_dec_addr),
+      .data_o(rd_mem_data)
+    );
 
-      
+
+    
+
+
+
+  
   endmodule :core 
