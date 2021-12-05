@@ -2,7 +2,7 @@
 //
 package axi4_pkg;
     //  Group: Typedefs
-    
+    typedef 
     
     //  Group: Parameters
     

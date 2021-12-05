@@ -35,8 +35,8 @@
      logic  [31:0] pc_fetch;
 
      logic [4:0]                   rd_addr;
-     logic [31:0]                  rd_mem_data;
-     logic [4:0]                   rd_exe_addr,rd_mem_addr,rd_dec_addr;
+     logic [31:0]                  rd_mem_data,rd_wb_data;
+     logic [4:0]                   rd_exe_addr,rd_mem_addr,rd_wb_addr;
 
      core_pkg::core_ctrl_t core_ctrl;
       
@@ -75,11 +75,11 @@
       .program_cnt_o(pc_dec),
       .instruction_valid_i(1'b1),
       .stall_i(stall),
-      .rd_addr_i(rd_dec_addr),
-      .rd_data_i(rd_mem_data),
+      .rd_addr_i(rd_wb_addr),
+      .rd_data_i(rd_wb_data),
       .core_ctrl_o(core_ctrl)
     );
-      
+    
     core_execution #( ) u_core_execution (
       .clk_i(clk_i),
       .arst_ni(arst_ni),
@@ -88,7 +88,7 @@
       .alu_op_i(core_ctrl.alu_op),
       .invert_i(core_ctrl.invert),
       .rd_addr_i(core_ctrl.addr.rd_addr),
-      .rd_addr_o(rd_mem_addr),
+      .rd_addr_o(rd_exe_addr),
       .program_cnt_i(pc_dec),
       .stall_i(stall),
       .result_o(alu_result),
@@ -96,14 +96,23 @@
       .comp_o(comp_o)
     );
 
+
+    core_mem #( ) u_core_mem (
+      .clk_i(clk_i),
+      .arst_ni(arst_ni),
+      .alu_result_i(alu_result),
+      .rd_addr_i(rd_exe_addr),
+      .rd_addr_o(rd_mem_addr),
+      .data_o(rd_mem_data)
+    );
           
     core_writeback #( ) u_core_writeback (
       .clk_i(clk_i),
       .arst_ni(arst_ni),
-      .alu_result_i(alu_result),
+      .alu_result_i(rd_mem_data),
       .rd_addr_i(rd_mem_addr),
-      .rd_addr_o(rd_dec_addr),
-      .data_o(rd_mem_data)
+      .rd_addr_o(rd_wb_addr),
+      .data_o(rd_wb_data)
     );
 
 

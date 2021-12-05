@@ -71,6 +71,7 @@ VFILES	=	$(RTLDIR)/core/rtl/core_pkg.sv \
 			$(RTLDIR)/core/rtl/core_decoder.sv \
 			$(RTLDIR)/core/rtl/core_execution.sv \
 			$(RTLDIR)/core/rtl/core_fetch.sv \
+			$(RTLDIR)/core/rtl/core_mem.sv \
 			$(RTLDIR)/core/rtl/core_writeback.sv \
 			$(RTLDIR)/core/rtl/core.sv \
 			harness.sv
