@@ -1,12 +1,16 @@
 
 VERILATOR = verilator
 GTKWAVE = gtkwave
+VERILATOR_FLAGS := -Wall --cc --exe --build --trace
 VERILATOR_ROOT ?= $(shell bash -c 'verilator -V|grep VERILATOR_ROOT | head -1 | sed -e "s/^.*=\s*//"')
 
 RTLDIR 	= ../src
 SRCDIR 	= src
 INCDIR 	= include
 
+RTL_SRCS := $(wildcard $(RTL_DIR)/*.sv)
+TB_SRCS := $(wildcard $(TB_DIR)/*.cpp)
+BUILD_DIR := build
 
 THREADS = 1
 
@@ -53,6 +57,10 @@ VINCS		=
 TOPLEVEL = auriga_harness
 TB_NAME  = auriga
 
+# Build directories
+OBJ_DIR := $(BUILD_DIR)/obj_dir
+VEXE := $(OBJ_DIR)/V$(TOP_MODULE)
+
 
 # Save file for GTKwave containing wave set for displaying
 WAVESDIR	=	waves
@@ -81,23 +89,26 @@ all: build run
 help: 
 	@echo "make compile"
 
-compile_rtl:  $(VFILES) $(CFILES)
+compile_rtl:  $(RTL_SRCS) $(TB_SRCS) $(CFILES)
 	@echo "\nCompiling..."
 	@echo $(CFLAGS)
 	$(VERILATOR)  $(OPTASS) $(VOPTS) $(VINCS) -CFLAGS '$(CFLAGS)' -LDFLAGS $(LDFLAGS) $(VDEFS) --top-module $(TOPLEVEL) $(VFILES) --cc --exe $(CFILES) -o V$(TB_NAME)
 
 # compile verilog into C++
-compile: $(VFILES) $(CFILES)
+compile: $(RTL_SRCS) $(TB_SRCS) $(CFILES)
 	@echo "\nCompiling..."
 	@echo $(CFLAGS)
 	$(VERILATOR)  $(OPTASS) $(VOPTS) $(VINCS) -CFLAGS '$(CFLAGS)' -LDFLAGS $(LDFLAGS) $(VDEFS) --top-module $(TOPLEVEL) $(VFILES) --cc --exe $(CFILES) -o V$(TB_NAME)
 	
 # compile C++ model into executable
-build: compile
+build: compile | $(OBJ_DIR)
 	@echo "\nBuilding..............."
 	make  --no-print-directory -C obj_dir -f V$(TOPLEVEL).mk
 	mv obj_dir/V$(TB_NAME) .
-			
+
+$(OBJ_DIR):
+	@mkdir -p $(OBJ_DIR)
+
 # execute simulation
 run: V$(TB_NAME)
 	@echo "Executing model.................."
