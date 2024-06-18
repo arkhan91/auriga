@@ -1,8 +1,38 @@
+/*
+MIT License
+
+Copyright (c) 2020 arkhan91
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+/***************************************************************************************
+File name     : branch_sel.sv
+Project       : Auriga
+Language      : SystemVerilog
+Description   : Branch selector
+***************************************************************************************/
+
 
 //LISENCE
   import core_pkg::*;
-  module core #(
-  )(
+  module core (
     input  logic                               clk_i,
     input  logic                               arst_ni,
     
@@ -80,7 +110,7 @@
       .core_ctrl_o(core_ctrl)
     );
     
-    core_execution #( ) u_core_execution (
+    core_execution u_core_execution (
       .clk_i(clk_i),
       .arst_ni(arst_ni),
       .operands_a_i(alu_operand_a),
@@ -97,16 +127,19 @@
     );
 
 
+
     core_mem #( ) u_core_mem (
       .clk_i(clk_i),
       .arst_ni(arst_ni),
+      .load_sel_i(1'b0),
+      .store_sel_i(1'b1),
       .alu_result_i(alu_result),
       .rd_addr_i(rd_exe_addr),
       .rd_addr_o(rd_mem_addr),
       .data_o(rd_mem_data)
     );
           
-    core_writeback #( ) u_core_writeback (
+    core_writeback u_core_writeback (
       .clk_i(clk_i),
       .arst_ni(arst_ni),
       .alu_result_i(rd_mem_data),
